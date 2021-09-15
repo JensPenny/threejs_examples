@@ -21,7 +21,7 @@ module.exports = (env, argv) => ({
     devServer: {
         historyApiFallback: true,
         static: {
-            directory: path.resolve(__dirname, '../dist'), 
+            directory: path.resolve(__dirname, '../dist'),
         },
         open: true,
         compress: true,
@@ -42,7 +42,7 @@ module.exports = (env, argv) => ({
             {
                 test: /\.js$/,
                 exclude: /(node_modules)/,
-                use: ['babel-loader', 'eslint-loader']
+                use: ['babel-loader', 'eslint-loader'],
             },
             {
                 test: /\.(?:ico|gif|png|jpg|jpeg|webp|svg|stl)$/i,
