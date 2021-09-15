@@ -62,6 +62,27 @@ function createWheels() {
     return wheel;
 }
 
+//todo: create functional headlights (may need a wall / floor)
+function createHeadlight() {
+    const geom = new THREE.CylinderGeometry(4, 4, 2, 24);
+    const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const headlight = new THREE.Mesh(geom, material);
+
+    headlight.rotation.z += THREE.MathUtils.degToRad(90);
+
+    let light = new THREE.SpotLight(0xff0000, 5, 10, THREE.MathUtils.degToRad(10), 0.25);
+    light.position.set(0, 0.125, 1);
+    let lightTarget = new THREE.Object3D();
+    lightTarget.position.set(0, 0.125, 1 + 0.1);
+    light.target = lightTarget;
+
+    const actualLight = new THREE.Group();
+    actualLight.add(headlight);
+    actualLight.add(light);
+    actualLight.add(lightTarget);
+    return actualLight;
+}
+
 function createCar() {
     const car = new THREE.Group();
     const leftWheel = createWheels();
@@ -100,6 +121,18 @@ function createCar() {
     coupe.position.y = 24;
     coupe.position.x = -6;
     car.add(coupe);
+
+    const headlightR = createHeadlight();
+    headlightR.position.y = 14;
+    headlightR.position.x = 30;
+    headlightR.position.z = 8;
+    car.add(headlightR);
+
+    const headlightL = createHeadlight();
+    headlightL.position.y = 14;
+    headlightL.position.x = 30;
+    headlightL.position.z = -8;
+    car.add(headlightL);
 
     return car;
 }
