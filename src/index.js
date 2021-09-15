@@ -1,3 +1,5 @@
+import { car } from './three/car.js';
 import { tutorial } from './three/tutorial.js';
 
-tutorial(document);
+//tutorial(document);
+car(document);
