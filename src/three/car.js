@@ -30,7 +30,7 @@ export function car(document) {
 
     let renderer = new THREE.WebGL1Renderer({ antialias: true });
     // Configure renderer clear color
-    renderer.setClearColor(0x7a7a7a);
+    //renderer.setClearColor(0x7a7a7a);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     //Start the rendering of the scene
@@ -41,6 +41,9 @@ export function car(document) {
 
     const car = createCar();
     scene.add(car);
+
+    const ground = createGround();
+    scene.add(ground);
 
     var render = function () {
         requestAnimationFrame(render);
@@ -166,4 +169,20 @@ function createSideTexture() {
     context.fillRect(58, 8, 60, 24);
 
     return new THREE.CanvasTexture(canvas);
+}
+function createGround() {
+    const groundTexture = new THREE.TextureLoader().load('/assets/textures/floor.png');
+    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(10000 / 100, 10000 / 50);
+    groundTexture.anisotropy = 16;
+    groundTexture.encoding = THREE.sRGBEncoding;
+
+    const groundMaterial = new THREE.MeshLambertMaterial({ map: groundTexture });
+    const geom = new THREE.PlaneBufferGeometry(10000, 10000);
+    const mesh = new THREE.Mesh(geom, groundMaterial);
+
+    mesh.position.y = 0;
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.receiveShadow = true;
+    return mesh;
 }
