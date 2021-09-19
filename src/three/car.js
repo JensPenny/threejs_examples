@@ -10,7 +10,7 @@ export function car(document) {
     scene.add(ambientLight);
 
     let directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(200, 500, 300);
+    directionalLight.position.set(400, 1000, 600);
     scene.add(directionalLight);
 
     let aspectRatio = window.innerWidth / window.innerHeight;
@@ -23,7 +23,7 @@ export function car(document) {
         cameraHeight / 2,
         cameraHeight / -2,
         0,
-        1000
+        10000
     );
     camera.position.set(200, 200, 200);
     camera.lookAt(0, 10, 0);
@@ -48,6 +48,9 @@ export function car(document) {
     var render = function () {
         requestAnimationFrame(render);
 
+        //camera.position.y += 0.1;
+        //camera.position.x += 0.1;
+        //camera.position.z += 0.1;
         car.rotation.y += 0.01;
 
         // Render the scene
@@ -67,23 +70,25 @@ function createWheels() {
 
 //todo: create functional headlights (may need a wall / floor)
 function createHeadlight() {
-    const geom = new THREE.CylinderGeometry(4, 4, 2, 24);
+    const geom = new THREE.CylinderGeometry(4, 4, 2, 8);
     const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
     const headlight = new THREE.Mesh(geom, material);
-
     headlight.rotation.z += THREE.MathUtils.degToRad(90);
 
-    let light = new THREE.SpotLight(0xff0000, 5, 10, THREE.MathUtils.degToRad(10), 0.25);
-    light.position.set(0, 0.125, 1);
-    let lightTarget = new THREE.Object3D();
-    lightTarget.position.set(0, 0.125, 1 + 0.1);
-    light.target = lightTarget;
+    let altitude = 0.8;
+    let distance = 1.3;
+    let range = 250;
+    let angle = 0.1;
 
-    const actualLight = new THREE.Group();
-    actualLight.add(headlight);
-    actualLight.add(light);
-    actualLight.add(lightTarget);
-    return actualLight;
+    let light = new THREE.SpotLight(0xff0000, 400, range, THREE.MathUtils.degToRad(10), 0.25, 2);
+
+    const lightGroup = new THREE.Group();
+    lightGroup.add(headlight);
+
+    let SpotlightHelper = new THREE.SpotLightHelper(light);
+    lightGroup.add(SpotlightHelper);
+
+    return lightGroup;
 }
 
 function createCar() {
