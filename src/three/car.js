@@ -3,6 +3,9 @@ import * as THREE from 'three';
 /**
  * source: https://www.freecodecamp.org/news/three-js-tutorial/
  */
+
+let renderfunctions = []; //only add render functions here!
+
 export function car(document) {
     let scene = new THREE.Scene();
 
@@ -42,8 +45,25 @@ export function car(document) {
     const car = createCar();
     scene.add(car);
 
+    var carBoxHelper = new THREE.BoxHelper(car, 0xff0000);
+    car.add(carBoxHelper);
+    renderfunctions.push({
+        render() {
+            carBoxHelper.update();
+        },
+    });
+
     const ground = createGround();
     scene.add(ground);
+
+    let geom = new THREE.BoxBufferGeometry(20, 20, 20);
+    let material = new THREE.MeshPhongMaterial({ color: 0x333333 });
+    let cube = new THREE.Mesh(geom, material);
+    cube.position.set(10, 10, -80);
+    scene.add(cube);
+
+    const axesHelper = new THREE.AxesHelper(100);
+    scene.add(axesHelper);
 
     var render = function () {
         requestAnimationFrame(render);
@@ -52,6 +72,8 @@ export function car(document) {
         //camera.position.x += 0.1;
         //camera.position.z += 0.1;
         car.rotation.y += 0.01;
+
+        renderfunctions.forEach((r) => r.render());
 
         // Render the scene
         renderer.render(scene, camera);
@@ -73,7 +95,7 @@ function createHeadlight() {
     const geom = new THREE.CylinderGeometry(4, 4, 2, 8);
     const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
     const headlight = new THREE.Mesh(geom, material);
-    headlight.rotation.z += THREE.MathUtils.degToRad(90);
+    //headlight.rotation.z += THREE.MathUtils.degToRad(90);
 
     let altitude = 0.8;
     let distance = 1.3;
@@ -84,9 +106,31 @@ function createHeadlight() {
 
     const lightGroup = new THREE.Group();
     lightGroup.add(headlight);
+    //lightGroup.add(light);
+    light.position.x = 0;
+    light.position.y = 0;
+    light.position.z = 0;
+
+    const target = new THREE.Object3D();
+    target.position.x = 100;
+    target.position.y = 0;
+    target.position.z = 0;
+    //lightGroup.add(target);
+    light.target = target;
 
     let SpotlightHelper = new THREE.SpotLightHelper(light);
-    lightGroup.add(SpotlightHelper);
+    //lightGroup.add(SpotlightHelper);
+
+    //probably a memleak, but I just want to get this over with :D
+    let renderCallback = {
+        helper: SpotlightHelper,
+        render() {
+            this.helper.update();
+        },
+    };
+    renderfunctions.push(renderCallback);
+
+    //lightGroup.rotation.z += THREE.MathUtils.degToRad(90);
 
     return lightGroup;
 }
@@ -131,16 +175,46 @@ function createCar() {
     car.add(coupe);
 
     const headlightR = createHeadlight();
-    headlightR.position.y = 14;
+    var headlightGroupHelper = new THREE.BoxHelper(headlightR, 0xff0000);
+    car.add(headlightGroupHelper);
+    renderfunctions.push({
+        render() {
+            headlightGroupHelper.update();
+        },
+    });
     headlightR.position.x = 30;
+    headlightR.position.y = 14;
     headlightR.position.z = 8;
     car.add(headlightR);
+
+    let lightR = new THREE.SpotLight(0xff0000, 400, 250, THREE.MathUtils.degToRad(10), 0.25, 2);
+    lightR.position.set(31, 14, 8);
+    let SpotlightHelper = new THREE.SpotLightHelper(lightR);
+    car.add(SpotlightHelper);
+
+    const target = new THREE.Object3D();
+    target.position.x = 50;
+    target.position.y = 14;
+    target.position.z = 8;
+    car.add(target);
+    lightR.target = target;
+    //probably a memleak, but I just want to get this over with :D
+    let renderCallback = {
+        helper: SpotlightHelper,
+        render() {
+            this.helper.update();
+        },
+    };
+    renderfunctions.push(renderCallback);
+
+    //car.add(lightR);
+    //car.add(headlightR);
 
     const headlightL = createHeadlight();
     headlightL.position.y = 14;
     headlightL.position.x = 30;
     headlightL.position.z = -8;
-    car.add(headlightL);
+    //car.add(headlightL);
 
     return car;
 }
