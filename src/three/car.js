@@ -45,6 +45,7 @@ export function car(document) {
     const car = createCar();
     scene.add(car);
 
+    /*
     var carBoxHelper = new THREE.BoxHelper(car, 0xff0000);
     car.add(carBoxHelper);
     renderfunctions.push({
@@ -52,6 +53,7 @@ export function car(document) {
             carBoxHelper.update();
         },
     });
+    */
 
     const ground = createGround();
     scene.add(ground);
@@ -95,44 +97,30 @@ function createHeadlight() {
     const geom = new THREE.CylinderGeometry(4, 4, 2, 8);
     const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
     const headlight = new THREE.Mesh(geom, material);
-    //headlight.rotation.z += THREE.MathUtils.degToRad(90);
+    headlight.rotation.z += THREE.MathUtils.degToRad(90);
 
-    let altitude = 0.8;
-    let distance = 1.3;
+    return headlight;
+}
+
+/**
+ * Add an actual light to a group. Also adds a target for that light
+ * group: the group to add the light to
+ * parent: the originating object. The parent's position will be used for the light pos
+ */
+function addActualLight(group, parent) {
     let range = 250;
-    let angle = 0.1;
+    let angle = 10; //Angle in degrees
 
-    let light = new THREE.SpotLight(0xff0000, 400, range, THREE.MathUtils.degToRad(10), 0.25, 2);
-
-    const lightGroup = new THREE.Group();
-    lightGroup.add(headlight);
-    //lightGroup.add(light);
-    light.position.x = 0;
-    light.position.y = 0;
-    light.position.z = 0;
+    let light = new THREE.SpotLight(0xff0000, 400, range, THREE.MathUtils.degToRad(angle), 0.25, 2);
+    light.position.set(parent.position.x, parent.position.y, parent.position.z);
+    group.add(light);
 
     const target = new THREE.Object3D();
-    target.position.x = 100;
+    target.position.x = parent.position.x + 100;
     target.position.y = 0;
-    target.position.z = 0;
-    //lightGroup.add(target);
+    target.position.z = parent.position.z;
+    group.add(target);
     light.target = target;
-
-    let SpotlightHelper = new THREE.SpotLightHelper(light);
-    //lightGroup.add(SpotlightHelper);
-
-    //probably a memleak, but I just want to get this over with :D
-    let renderCallback = {
-        helper: SpotlightHelper,
-        render() {
-            this.helper.update();
-        },
-    };
-    renderfunctions.push(renderCallback);
-
-    //lightGroup.rotation.z += THREE.MathUtils.degToRad(90);
-
-    return lightGroup;
 }
 
 function createCar() {
@@ -175,46 +163,19 @@ function createCar() {
     car.add(coupe);
 
     const headlightR = createHeadlight();
-    var headlightGroupHelper = new THREE.BoxHelper(headlightR, 0xff0000);
-    car.add(headlightGroupHelper);
-    renderfunctions.push({
-        render() {
-            headlightGroupHelper.update();
-        },
-    });
     headlightR.position.x = 30;
     headlightR.position.y = 14;
     headlightR.position.z = 8;
     car.add(headlightR);
 
-    let lightR = new THREE.SpotLight(0xff0000, 400, 250, THREE.MathUtils.degToRad(10), 0.25, 2);
-    lightR.position.set(31, 14, 8);
-    let SpotlightHelper = new THREE.SpotLightHelper(lightR);
-    car.add(SpotlightHelper);
-
-    const target = new THREE.Object3D();
-    target.position.x = 50;
-    target.position.y = 14;
-    target.position.z = 8;
-    car.add(target);
-    lightR.target = target;
-    //probably a memleak, but I just want to get this over with :D
-    let renderCallback = {
-        helper: SpotlightHelper,
-        render() {
-            this.helper.update();
-        },
-    };
-    renderfunctions.push(renderCallback);
-
-    //car.add(lightR);
-    //car.add(headlightR);
-
     const headlightL = createHeadlight();
-    headlightL.position.y = 14;
     headlightL.position.x = 30;
+    headlightL.position.y = 14;
     headlightL.position.z = -8;
-    //car.add(headlightL);
+    car.add(headlightL);
+
+    addActualLight(car, headlightL);
+    addActualLight(car, headlightR);
 
     return car;
 }
@@ -256,7 +217,7 @@ function createGround() {
     groundTexture.anisotropy = 16;
     groundTexture.encoding = THREE.sRGBEncoding;
 
-    const groundMaterial = new THREE.MeshLambertMaterial({ map: groundTexture });
+    const groundMaterial = new THREE.MeshPhongMaterial({ map: groundTexture });
     const geom = new THREE.PlaneBufferGeometry(10000, 10000);
     const mesh = new THREE.Mesh(geom, groundMaterial);
 
