@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 /**
  * source: https://www.freecodecamp.org/news/three-js-tutorial/
@@ -39,8 +40,9 @@ export function car(document) {
     //Start the rendering of the scene
     renderer.render(scene, camera);
 
+    const canvas = renderer.domElement;
     //Add the scene (canvas) to the DOM
-    document.body.appendChild(renderer.domElement);
+    document.body.appendChild(canvas);
 
     const car = createCar();
     scene.add(car);
@@ -67,13 +69,15 @@ export function car(document) {
     const axesHelper = new THREE.AxesHelper(100);
     scene.add(axesHelper);
 
+    const controls = createControls(camera, canvas);
+
     var render = function () {
         requestAnimationFrame(render);
 
         //camera.position.y += 0.1;
         //camera.position.x += 0.1;
         //camera.position.z += 0.1;
-        car.rotation.y += 0.01;
+        //car.rotation.y += 0.01;
 
         renderfunctions.forEach((r) => r.render());
 
@@ -121,6 +125,14 @@ function addActualLight(group, parent) {
     target.position.z = parent.position.z;
     group.add(target);
     light.target = target;
+
+    const helper = new THREE.SpotLightHelper(light);
+    renderfunctions.push({
+        render() {
+            helper.update();
+        },
+    });
+    group.add(helper);
 }
 
 function createCar() {
@@ -226,3 +238,10 @@ function createGround() {
     mesh.receiveShadow = true;
     return mesh;
 }
+
+function createControls(camera, canvas) {
+    const controls = new OrbitControls(camera, canvas);
+    return controls;
+}
+
+export { createCar, createControls };
