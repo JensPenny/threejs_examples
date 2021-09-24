@@ -77,9 +77,9 @@ export function car(document) {
         //camera.position.y += 0.1;
         //camera.position.x += 0.1;
         //camera.position.z += 0.1;
-        //car.rotation.y += 0.01;
 
         renderfunctions.forEach((r) => r.render());
+        //car.rotation.y += 0.01;
 
         // Render the scene
         renderer.render(scene, camera);
